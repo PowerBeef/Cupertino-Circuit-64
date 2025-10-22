@@ -14,57 +14,89 @@
 // #error Matching build is only possible on IDO; please build with NON_MATCHING=1.
 #endif
 
+/**
+ * @brief Computes the number of elements in a static array.
+ */
 #define ARRAY_COUNT(arr) (s32)(sizeof(arr) / sizeof(arr[0]))
 
+/**
+ * @brief Concatenates two tokens.
+ */
 #define GLUE(a, b) a##b
 #define GLUE2(a, b) GLUE(a, b)
 
-// Avoid compiler warnings for unused variables
+/**
+ * @brief Marks a variable as unused to suppress compiler warnings.
+ */
 #ifdef __GNUC__
 #define UNUSED __attribute__((unused))
 #else
 #define UNUSED
 #endif
 
-// Avoid undefined behaviour for non-returning functions
+/**
+ * @brief Marks a function as non-returning to avoid undefined behavior.
+ */
 #ifdef __GNUC__
 #define NORETURN __attribute__((noreturn))
 #else
 #define NORETURN
 #endif
 
-// Avoid undefined behaviour for non-returning functions
+/**
+ * @brief Prevents the compiler from reordering memory accesses around this point.
+ */
 #ifdef __GNUC__
 #define NO_REORDER __attribute__((no_reorder))
 #else
 #define NO_REORDER
 #endif
 
-// Static assertions
+/**
+ * @brief Provides a static assertion mechanism.
+ */
 #ifdef __GNUC__
 #define STATIC_ASSERT(cond, msg) _Static_assert(cond, msg)
 #else
 #define STATIC_ASSERT(cond, msg) typedef char GLUE2(static_assertion_failed, __LINE__)[(cond) ? 1 : -1]
 #endif
 
-// Align to 8-byte boundary for DMA requirements
+/**
+ * @brief Aligns a variable to an 8-byte boundary.
+ */
 #ifdef __GNUC__
 #define ALIGNED8
 #else
 #define ALIGNED8
 #endif
 
-// Align to 16-byte boundary for audio lib requirements
+/**
+ * @brief Aligns a variable to a 16-byte boundary.
+ */
 #ifdef __GNUC__
 #define ALIGNED16
 #else
 #define ALIGNED16
 #endif
 
-// Fixed point macros
+/**
+ * @brief Converts a float to a 16.16 fixed-point number.
+ */
 #define FTOFIX(f) ((s32) ((f) * 65536.0))
+
+/**
+ * @brief Converts an integer to a 16.16 fixed-point number.
+ */
 #define ITOFIX(i) ((s32) ((i) << 16))
+
+/**
+ * @brief Converts a 16.16 fixed-point number to a float.
+ */
 #define FIXTOF(x) ((double) ((x) / 65536.0))
+
+/**
+ * @brief Converts a 16.16 fixed-point number to an integer.
+ */
 #define FIXTOI(x) ((s32) ((x) >> 16))
 
 // Split fixed-point values into its integer or fractional parts.
@@ -105,11 +137,14 @@
 #define VIRTUAL_TO_PHYSICAL2(addr) ((u8*) (addr) - 0x80000000U)
 #endif
 
-// aligns an address to the next 16 bytes
+/**
+ * @brief Aligns a value to the next 16-byte boundary.
+ */
 #define ALIGN16(val) (((val) + 0xF) & ~0xF)
 
-// Envelopes are always stored as big endian, to match sequence files which are
-// byte blobs and can embed envelopes. Hence this byteswapping macro.
+/**
+ * @brief Swaps the byte order of a 16-bit value.
+ */
 #ifndef BSWAP16
 #if IS_BIG_ENDIAN
 #define BSWAP16(x) (x)

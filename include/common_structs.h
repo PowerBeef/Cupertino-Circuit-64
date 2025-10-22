@@ -7,53 +7,98 @@
 #include <ultra64.h>
 #endif
 
+/**
+ * @brief A 3D vector with floating-point components.
+ */
 typedef f32 Vec3f[3];
+
+/**
+ * @brief A 4D vector with floating-point components.
+ */
 typedef f32 Vec4f[4];
 
+/**
+ * @brief A 3D vector with integer components.
+ */
 typedef s32 Vec3iu[3];
 
+/**
+ * @brief A 3D vector with short integer components.
+ */
 typedef s16 Vec3s[3];
+
+/**
+ * @brief A 3D vector with unsigned short integer components.
+ */
 typedef u16 Vec3su[3];
+
+/**
+ * @brief A 4D vector with short integer components.
+ */
 typedef s16 Vec4s[4];
 
+/**
+ * @brief A 3x3 matrix with floating-point components.
+ */
 typedef f32 Mat3[3][3];
+
+/**
+ * @brief A 4x4 matrix with floating-point components.
+ */
 typedef f32 Mat4[4][4];
 
-// might not be real, used by func_8002C954
+/**
+ * @brief A 3D vector structure with named floating-point components.
+ * @note This may not be a real structure from the original game.
+ */
 typedef struct {
     f32 x, y, z;
 } Vec3fs;
 
-// This was added as a silly idea:
-// In the data to use "A, B, Z, R" instead of hex numbers.
+/**
+ * @brief An enumeration for controller buttons used in ghost data.
+ * This allows using button names instead of hex values.
+ */
 typedef enum { A = 0x80, B = 0x40, Z = 0x20, R = 0x10 } GhostController;
 
 /***  types.h  ***/
 
+/**
+ * @brief Defines the behavior of a CPU player on a track segment.
+ */
 typedef struct {
-    /* 0x0 */ s16 pathPointStart;
-    /* 0x2 */ s16 pathPointEnd;
-    /* 0x4 */ s32 type;
+    /* 0x0 */ s16 pathPointStart; ///< The starting waypoint of the segment.
+    /* 0x2 */ s16 pathPointEnd;   ///< The ending waypoint of the segment.
+    /* 0x4 */ s32 type;           ///< The type of behavior for this segment.
 } CPUBehaviour; // size = 0x8
 
+/**
+ * @brief An enumeration of the possible states for a Signal Processor (SP) task.
+ */
 enum SpTaskState {
-    SPTASK_STATE_NOT_STARTED,
-    SPTASK_STATE_RUNNING,
-    SPTASK_STATE_INTERRUPTED,
-    SPTASK_STATE_FINISHED,
-    SPTASK_STATE_FINISHED_DP
+    SPTASK_STATE_NOT_STARTED,   ///< The task has not yet started.
+    SPTASK_STATE_RUNNING,       ///< The task is currently running.
+    SPTASK_STATE_INTERRUPTED,   ///< The task has been interrupted.
+    SPTASK_STATE_FINISHED,      ///< The task has finished processing.
+    SPTASK_STATE_FINISHED_DP    ///< The task is finished, and the Display Processor (DP) is done.
 };
 
+/**
+ * @brief A structure representing a Signal Processor (SP) task.
+ */
 struct SPTask {
-    /*0x00*/ OSTask task;
-    /*0x40*/ OSMesgQueue* msgqueue;
-    /*0x44*/ OSMesg msg;
-    /*0x48*/ enum SpTaskState state;
+    /*0x00*/ OSTask task;                  ///< The underlying OS task.
+    /*0x40*/ OSMesgQueue* msgqueue;        ///< The message queue to notify upon completion.
+    /*0x44*/ OSMesg msg;                   ///< The message to send upon completion.
+    /*0x48*/ enum SpTaskState state;       ///< The current state of the task.
 }; // size = 0x4C, align = 0x8
 
+/**
+ * @brief A structure for handling V-blank events.
+ */
 struct VblankHandler {
-    OSMesgQueue* queue;
-    OSMesg msg;
+    OSMesgQueue* queue; ///< The message queue to send the V-blank message to.
+    OSMesg msg;         ///< The message to send on V-blank.
 };
 
 struct D_80150158 {
@@ -63,17 +108,20 @@ struct D_80150158 {
     s32 unkC;
 };
 
+/**
+ * @brief A structure representing the state of a controller.
+ */
 struct Controller {
-    s16 rawStickX;
-    s16 rawStickY;
-    s16 rightRawStickX;
-    s16 rightRawStickY;
-    u16 button;          // HeldButton
-    u16 buttonPressed;   // OnTriggered
-    u16 buttonDepressed; // OffTriggered
-    u16 stickDirection;
-    u16 stickPressed;   // OffTriggered
-    u16 stickDepressed; // OnTriggered
+    s16 rawStickX;       ///< The raw X-axis value of the analog stick.
+    s16 rawStickY;       ///< The raw Y-axis value of the analog stick.
+    s16 rightRawStickX;  ///< The raw X-axis value of the right analog stick.
+    s16 rightRawStickY;  ///< The raw Y-axis value of the right analog stick.
+    u16 button;          ///< A bitmask of currently held buttons.
+    u16 buttonPressed;   ///< A bitmask of buttons pressed this frame.
+    u16 buttonDepressed; ///< A bitmask of buttons released this frame.
+    u16 stickDirection;  ///< The direction of the analog stick as a bitmask.
+    u16 stickPressed;    ///< A bitmask of stick directions pressed this frame.
+    u16 stickDepressed;  ///< A bitmask of stick directions released this frame.
 };
 
 // Camera path struct? Or something like that. For GP race won scene?
@@ -144,18 +192,20 @@ typedef struct {
 } StaffGhost;
 // 80160ADC Banana's remaining
 
+/**
+ * @brief A structure for handling collision data.
+ */
 typedef struct {
     /* 0x00 */ u16 unk30;
     /* 0x02 */ u16 unk32;
     /* 0x04 */ u16 unk34;
-    /* 0x06 */ u16 meshIndexYX;
-    /* 0x08 */ u16 meshIndexZY;
-    // This may be an index to the tilemap?
-    /* 0x0A */ u16 meshIndexZX;
-    /* 0x0C */ Vec3f surfaceDistance; // Appears to be distance from actor to surface for zx, yx, and zy planes.
+    /* 0x06 */ u16 meshIndexYX;         ///< Index of the collision mesh in the YX plane.
+    /* 0x08 */ u16 meshIndexZY;         ///< Index of the collision mesh in the ZY plane.
+    /* 0x0A */ u16 meshIndexZX;         ///< Index of the collision mesh in the ZX plane.
+    /* 0x0C */ Vec3f surfaceDistance;   ///< Distance from the object to the surface in each plane.
     /* 0x18 */ Vec3f unk48;
     /* 0x24 */ Vec3f unk54;
-    /* 0x30 */ Vec3f orientationVector;
+    /* 0x30 */ Vec3f orientationVector; ///< The normal vector of the surface.
     /* 0x3C */ f32 unk6C;
 } Collision;
 
@@ -229,16 +279,16 @@ typedef struct {
     /* 0x28 */ f32 distance;
 } CollisionTriangle; // size = 0x2C
 
+/**
+ * @brief A structure representing a kart's tyre.
+ */
 typedef struct {
-    /* 0x00 */ Vec3f pos;
-    /* 0x0C */ u8 surfaceType; // Surface type that the tyre is touching.
-    /* 0x0D */ u8 surfaceFlags;
-    /* 0x0E */ u16 collisionMeshIndex; // Index into gCollisionMesh
-                                       // Height of tyre attached to ground. When flying it floats with the kart.
-    /* 0x10 */ f32 baseHeight;
-    // Something lighting related. 1 when in a shaded region, 2 when in a tree's shadow
-    // 3 when getting crushed by a whomp, but curiously only the front left tyre will ever have this value
-    /* 0x14 */ s32 unk_14;
+    /* 0x00 */ Vec3f pos;                 ///< The position of the tyre in 3D space.
+    /* 0x0C */ u8 surfaceType;            ///< The type of surface the tyre is currently on.
+    /* 0x0D */ u8 surfaceFlags;           ///< Flags related to the surface.
+    /* 0x0E */ u16 collisionMeshIndex;    ///< The index of the collision mesh the tyre is interacting with.
+    /* 0x10 */ f32 baseHeight;            ///< The height of the tyre relative to the ground.
+    /* 0x14 */ s32 unk_14;                ///< Lighting-related properties.
 } KartTyre; // size = 0x18
 
 #define FRONT_LEFT 0
@@ -261,21 +311,24 @@ struct UnkPlayerInner {
     /* 0xDD4 */ s16 unk20;
 };
 
+/**
+ * @brief The main structure representing a player in the game.
+ */
 typedef struct {
-    /* 0x0000 */ u16 type; // playerType?
+    /* 0x0000 */ u16 type;                 ///< Bitmask of player properties (human, CPU, etc.).
     /* 0x0002 */ u16 unk_002;
-    /* 0x0004 */ s16 currentRank;
+    /* 0x0004 */ s16 currentRank;          ///< The player's current rank in the race.
     /* 0x0006 */ u16 unk_006;
-    /* 0x0008 */ s16 lapCount;
+    /* 0x0008 */ s16 lapCount;             ///< The number of laps the player has completed.
     /* 0x000A */ char unk_00A[0x2];
-    /* 0x000C */ s32 soundEffects;    // Bitflag.
-    /* 0x0010 */ s16 currentItemCopy; // Has no effect on what item the players has, It is just a synced copy
+    /* 0x000C */ s32 soundEffects;         ///< Bitmask of active sound effects.
+    /* 0x0010 */ s16 currentItemCopy;      ///< A copy of the player's current item.
     /* 0x0012 */ s16 unk_012;
-    /* 0x0014 */ Vec3f pos;
-    /* 0x0020 */ Vec3f oldPos;
-    /* 0x002C */ Vec3s rotation;
+    /* 0x0014 */ Vec3f pos;                ///< The player's position in 3D space.
+    /* 0x0020 */ Vec3f oldPos;             ///< The player's position in the previous frame.
+    /* 0x002C */ Vec3s rotation;           ///< The player's rotation angles.
     /* 0x0032 */ char unk_032[0x2];
-    /* 0x0034 */ Vec3f velocity;
+    /* 0x0034 */ Vec3f velocity;           ///< The player's velocity vector.
     /* 0x0040 */ s16 unk_040;
     /* 0x0042 */ s16 unk_042;
     /* 0x0044 */ s16 unk_044;
@@ -286,19 +339,19 @@ typedef struct {
     /* 0x005C */ f32 unk_05C;
     /* 0x0060 */ f32 unk_060;
     /* 0x0064 */ Vec3f unk_064;
-    /* 0x0070 */ f32 boundingBoxSize;
+    /* 0x0070 */ f32 boundingBoxSize;      ///< The size of the player's bounding box.
     /* 0x0074 */ f32 unk_074;
     /* 0x0078 */ s16 unk_078;
-    /* 0x007A */ s16 hopFrameCounter;
+    /* 0x007A */ s16 hopFrameCounter;      ///< A counter for the kart hop animation.
     /* 0x007C */ s32 unk_07C;
-    /* 0x0080 */ f32 boostPower;
+    /* 0x0080 */ f32 boostPower;           ///< The power of the player's current boost.
     /* 0x0084 */ f32 unk_084;
     /* 0x0088 */ f32 unk_088;
-    /* 0x008C */ f32 kartPropulsionStrength;
+    /* 0x008C */ f32 kartPropulsionStrength; ///< The strength of the kart's propulsion.
     /* 0x0090 */ f32 unk_090;
-    /* 0x0094 */ f32 speed;
+    /* 0x0094 */ f32 speed;                ///< The player's current speed.
     /* 0x0098 */ f32 unk_098;
-    /* 0x009C */ f32 currentSpeed;
+    /* 0x009C */ f32 currentSpeed;         ///< The player's current speed (used for calculations).
     /* 0x00A0 */ f32 unk_0A0;
     /* 0x00A4 */ f32 unk_0A4;
     /* 0x00A8 */ s16 unk_0A8;
@@ -310,63 +363,63 @@ typedef struct {
     /* 0x00B4 */ u16 unk_0B4;
     /* 0x00B6 */ u16 unk_0B6;
     /* 0x00B8 */ f32 unk_0B8;
-    /* 0x00BC */ u32 effects;
+    /* 0x00BC */ u32 effects;              ///< Bitmask of active effects (e.g., boost, lightning).
     /* 0x00C0 */ s16 unk_0C0;
     /* 0x00C2 */ s16 unk_0C2;
-    /* 0x00C4 */ s16 slopeAccel;
-    /* 0x00C6 */ s16 alpha;
+    /* 0x00C4 */ s16 slopeAccel;           ///< Acceleration due to the slope of the track.
+    /* 0x00C6 */ s16 alpha;                ///< The player's alpha transparency.
     /* 0x00C8 */ s16 unk_0C8;
     /* 0x00CA */ s16 unk_0CA;
     /* 0x00CC */ Vec4s unk_0CC;
     /* 0x00D4 */ Vec4s unk_0D4;
-    /* 0x00DC */ s16 boostTimer;
-    /* 0x00DE */ u16 waterInteractionFlags;
+    /* 0x00DC */ s16 boostTimer;           ///< A timer for the boost effect.
+    /* 0x00DE */ u16 waterInteractionFlags; ///< Flags for interaction with water.
     /* 0x00E0 */ s16 unk_0E0;
     /* 0x00E2 */ s16 unk_0E2;
     /* 0x00E4 */ f32 unk_0E4;
     /* 0x00E8 */ f32 unk_0E8;
-    /* 0x00EC */ f32 kartHopVelocity;
-    /* 0x00F0 */ f32 kartHopJerk;
-    /* 0x00F4 */ f32 kartHopAcceleration;
-    /* 0x00F8 */ u16 surfaceType;
+    /* 0x00EC */ f32 kartHopVelocity;      ///< The vertical velocity of a kart hop.
+    /* 0x00F0 */ f32 kartHopJerk;          ///< The jerk (rate of change of acceleration) of a kart hop.
+    /* 0x00F4 */ f32 kartHopAcceleration;  ///< The vertical acceleration of a kart hop.
+    /* 0x00F8 */ u16 surfaceType;          ///< The type of surface the player is currently on.
     /* 0x00FA */ s16 unk_0FA;
-    /* 0x00FC */ f32 kartFriction;
-    /* 0x0100 */ f32 kartGravity;
+    /* 0x00FC */ f32 kartFriction;         ///< The friction of the kart.
+    /* 0x0100 */ f32 kartGravity;          ///< The gravity acting on the kart.
     /* 0x0104 */ f32 unk_104;
-    /* 0x0108 */ f32 hopVerticalOffset;
+    /* 0x0108 */ f32 hopVerticalOffset;    ///< The vertical offset from a hop.
     /* 0x010C */ s16 unk_10C;
     /* 0x010E */ char unk_10E[0x2];
-    /* 0x0110 */ Collision collision;
+    /* 0x0110 */ Collision collision;      ///< The player's collision data.
     /* 0x0150 */ Mat3 unk_150;
-    /* 0x0174 */ Mat3 orientationMatrix;
-    /* 0x0198 */ KartTyre tyres[4];
+    /* 0x0174 */ Mat3 orientationMatrix;    ///< The player's orientation matrix.
+    /* 0x0198 */ KartTyre tyres[4];         ///< Data for each of the kart's four tyres.
     /* 0x01F8 */ f32 unk_1F8;
     /* 0x01FC */ f32 unk_1FC;
-    /* 0x0200 */ u32 unk_200; // May be s32. but less casting required if u32
-    /* 0x0204 */ s16 driftDuration;
+    /* 0x0200 */ u32 unk_200;
+    /* 0x0204 */ s16 driftDuration;        ///< The duration of the player's drift.
     /* 0x0206 */ s16 unk_206;
     /* 0x0208 */ f32 unk_208;
     /* 0x020C */ f32 unk_20C;
     /* 0x0210 */ f32 unk_210;
-    /* 0x0214 */ f32 topSpeed;
+    /* 0x0214 */ f32 topSpeed;             ///< The player's top speed.
     /* 0x0218 */ f32 unk_218;
     /* 0x021C */ f32 unk_21C;
-    /* 0x0220 */ s16 nearestPathPointId; // ??
+    /* 0x0220 */ s16 nearestPathPointId;   ///< The ID of the nearest waypoint.
     /* 0x0222 */ s16 unk_222;
-    /* 0x0224 */ f32 size;
+    /* 0x0224 */ f32 size;                 ///< The size of the player's character.
     /* 0x0228 */ s16 unk_228;
-    /* 0x022A */ s16 driftState;
-    /* 0x022C */ f32 previousSpeed;
+    /* 0x022A */ s16 driftState;           ///< The current state of the player's drift.
+    /* 0x022C */ f32 previousSpeed;        ///< The player's speed in the previous frame.
     /* 0x0230 */ f32 unk_230;
     /* 0x0234 */ s16 unk_234;
     /* 0x0236 */ s16 unk_236;
     /* 0x0238 */ s16 unk_238;
     /* 0x023A */ s16 unk_23A;
     /* 0x023C */ f32 unk_23C;
-    /* 0x0240 */ s32 tyreSpeed;
-    /* 0x0244 */ u16 animFrameSelector[4]; // [0] Active texture group
-    /* 0x024C */ u16 animGroupSelector[4]; // Based on screen
-    /* 0x0254 */ u16 characterId;
+    /* 0x0240 */ s32 tyreSpeed;            ///< The rotational speed of the tyres.
+    /* 0x0244 */ u16 animFrameSelector[4]; ///< The active animation frame selector.
+    /* 0x024C */ u16 animGroupSelector[4]; ///< The active animation group selector.
+    /* 0x0254 */ u16 characterId;          ///< The ID of the player's character.
     /* 0x0256 */ u16 unk_256;
     /* 0x0258 */ UnkPlayerStruct258 particlePool0[10];
     /* 0x06D8 */ UnkPlayerStruct258 particlePool1[10];
@@ -394,10 +447,10 @@ typedef struct {
     /* 0x0DD2 */ // s16 unk_DD2;
     /* 0x0DD4 */ // s16 unk_DD4;
 
-    u32 nControlFlags; // Is racer human, ai, or networked controlled?
-    s32 nCharacter;    // Networked character choice
-    s32 nStartingRank;
-    u32 nHasAuthority;
+    u32 nControlFlags; ///< Flags for whether the player is human, AI, or network-controlled.
+    s32 nCharacter;    ///< The player's character choice over the network.
+    s32 nStartingRank; ///< The player's starting rank.
+    u32 nHasAuthority; ///< Whether this client has authority over the player.
 } Player; // size = 0xDD8
 
 enum POOL_1_PARTICLE_TYPES {
@@ -537,7 +590,7 @@ typedef struct {
     /* 0x81 */ u8 unk_81;
     /* 0x82 */ s8 unk_82;
     /* 0x83 */ s8 unk_83;
-} hud_player; // size = 0x84
+} hud_player;
 
 #define HUD_PLAYERS_SIZE 4
 
