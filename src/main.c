@@ -202,12 +202,33 @@ UNUSED s16 D_800DC590 = 0;
 f32 gVBlankTimer = 0.0f;
 f32 gCourseTimer = 0.0f;
 
+/**
+ * @brief Creates a new thread with the specified parameters.
+ *
+ * This function initializes and creates a new thread using the operating system's `osCreateThread` function.
+ * It sets the thread's `next` and `queue` pointers to NULL before creation.
+ *
+ * @param thread A pointer to the OSThread structure to be initialized.
+ * @param id The thread ID.
+ * @param entry A pointer to the function that the thread will execute.
+ * @param arg A void pointer to the argument that will be passed to the thread's entry function.
+ * @param sp A void pointer to the thread's stack pointer.
+ * @param pri The priority of the thread.
+ */
 void create_thread(OSThread* thread, OSId id, void (*entry)(void*), void* arg, void* sp, OSPri pri) {
     thread->next = NULL;
     thread->queue = NULL;
     osCreateThread(thread, id, entry, arg, sp, pri);
 }
+
 void isPrintfInit(void);
+
+/**
+ * @brief The main entry point of the application.
+ *
+ * This function initializes the operating system, sets the TV type for the EU version,
+ * and creates and starts the idle thread. It also initializes `osSyncPrintf` for debug builds.
+ */
 void main_func(void) {
 #ifdef VERSION_EU
     osTvType = OS_TV_PAL;
@@ -250,6 +271,12 @@ void thread1_idle(void* arg) {
     }
 }
 
+/**
+ * @brief Sets up the message queues for DMA, SP tasks, and interrupts.
+ *
+ * This function initializes the DMA message queue, the SP task message queue, and the interrupt message queue.
+ * It also sets up event messages for V-blank, SP completion, and DP completion to be sent to the interrupt queue.
+ */
 void setup_mesg_queues(void) {
     osCreateMesgQueue(&gDmaMesgQueue, gDmaMesgBuf, ARRAY_COUNT(gDmaMesgBuf));
     osCreateMesgQueue(&gSPTaskMesgQueue, gSPTaskMesgBuf, ARRAY_COUNT(gSPTaskMesgBuf));
@@ -259,6 +286,14 @@ void setup_mesg_queues(void) {
     osSetEventMesg(OS_EVENT_DP, &gIntrMesgQueue, OS_MESG_32(MESG_DP_COMPLETE));
 }
 
+/**
+ * @brief Starts an SP task.
+ *
+ * This function sets the active SP task based on the task type (audio or display),
+ * loads the task, starts it, and sets its state to running.
+ *
+ * @param taskType The type of SP task to start (M_AUDTASK or M_GFXTASK).
+ */
 void start_sptask(s32 taskType) {
     if (taskType == M_AUDTASK) {
         gActiveSPTask = sCurrentAudioSPTask;
@@ -318,6 +353,16 @@ void create_gfx_task_structure(void) {
 }
 
 f32 gDeltaTime = 0.0f;
+
+/**
+ * @brief Calculates the time elapsed since the last frame.
+ *
+ * This function computes the delta time using the system's high-resolution counter.
+ * It handles counter resets and caps the delta time to a maximum value to prevent large jumps.
+ * The result is stored in the global variable `gDeltaTime`.
+ *
+ * @return The calculated delta time.
+ */
 f32 calculate_delta_time(void) {
     static u32 prevtime = 0;
     u32 now = osGetCount();
@@ -340,6 +385,12 @@ f32 calculate_delta_time(void) {
     gDeltaTime = deltaTime;
 }
 
+/**
+ * @brief Initializes the controllers.
+ *
+ * This function sets up the serial interface (SI) event message queue and initializes the controllers.
+ * It also checks if controller 1 is unplugged and sets a flag accordingly.
+ */
 void init_controllers(void) {
     osCreateMesgQueue(&gSIEventMesgQueue, &gSIEventMesgBuf[0], ARRAY_COUNT(gSIEventMesgBuf));
     osSetEventMesg(OS_EVENT_SI, &gSIEventMesgQueue, OS_MESG_32(0x33333333));
@@ -351,6 +402,15 @@ void init_controllers(void) {
     }
 }
 
+/**
+ * @brief Updates the state of a specific controller.
+ *
+ * This function reads the raw stick and button data from the controller pad,
+ * processes it, and updates the controller's state, including button presses,
+ * depressions, and stick direction.
+ *
+ * @param index The index of the controller to update (0-3).
+ */
 void update_controller(s32 index) {
     struct Controller* controller = &gControllers[index];
     u16 stick;
@@ -397,6 +457,13 @@ void update_controller(s32 index) {
     controller->stickDirection = stick;
 }
 
+/**
+ * @brief Reads the state of all controllers.
+ *
+ * This function initiates a read of the controller data, retrieves the data,
+ * and then updates the state for each of the four controllers. It also aggregates
+ * the button and stick states from all controllers into a fifth controller structure.
+ */
 void read_controllers(void) {
     OSMesg msg;
 
@@ -426,15 +493,39 @@ void read_controllers(void) {
                gControllerFour->stickDepressed);
 }
 
+/**
+ * @brief Sets the physical address of the Z-buffer.
+ *
+ * This function converts the virtual address of the Z-buffer to a physical address
+ * and stores it in the global variable `gPhysicalZBuffer`.
+ */
 void func_80000BEC(void) {
     gPhysicalZBuffer = VIRTUAL_TO_PHYSICAL(&gZBuffer);
 }
 
+/**
+ * @brief Dispatches an audio SP task.
+ *
+ * This function writes back the data cache and sends the specified audio SP task
+ * to the SP task message queue without blocking.
+ *
+ * @param spTask A pointer to the SPTask to be dispatched.
+ */
 void dispatch_audio_sptask(struct SPTask* spTask) {
     osWritebackDCacheAll();
     osSendMesg(&gSPTaskMesgQueue, OS_MESG_PTR(spTask), OS_MESG_NOBLOCK);
 }
 
+/**
+ * @brief Executes a display list SP task.
+ *
+ * This function writes back the data cache and sets the state of the SP task to not started.
+ * If there is no current display SP task, it sets the specified task as the current one
+ * and sends a message to start the graphics SP task. Otherwise, it sets the task as the next
+ * display SP task.
+ *
+ * @param spTask A pointer to the SPTask to be executed.
+ */
 void exec_display_list(struct SPTask* spTask) {
     osWritebackDCacheAll();
     spTask->state = SPTASK_STATE_NOT_STARTED;
@@ -467,8 +558,16 @@ void end_master_display_list(void) {
     create_gfx_task_structure();
 }
 
-// clear_frame_buffer from SM64, with a few edits
-//! @todo Why did void* work for matching
+/**
+ * @brief Clears the framebuffer with a specified color.
+ *
+ * This function, adapted from SM64, sets the RDP to fill mode and clears the entire
+ * framebuffer with the given color.
+ *
+ * @param color The color to clear the framebuffer with.
+ * @return Returns void* to match original implementation, but the return value is not used.
+ * @todo Investigate why the original function returned a void pointer.
+ */
 void* clear_framebuffer(s32 color) {
     gDPPipeSync(gDisplayListHead++);
 
@@ -481,8 +580,16 @@ void* clear_framebuffer(s32 color) {
     gDPPipeSync(gDisplayListHead++);
 
     gDPSetCycleType(gDisplayListHead++, G_CYC_1CYCLE);
+    return NULL;
 }
 
+/**
+ * @brief Initializes the rendering process.
+ *
+ * This function sets up the initial graphics pool, SP task, and display list.
+ * It also initializes the RCP, clears the framebuffer, ends the master display list,
+ * and executes the first display list.
+ */
 void rendering_init(void) {
     gGfxPool = &gGfxPools[0];
     set_segment_base_addr_x64(1, gGfxPool);
@@ -496,6 +603,13 @@ void rendering_init(void) {
     gGlobalTimer++;
 }
 
+/**
+ * @brief Configures the graphics pool for the current frame.
+ *
+ * This function selects the appropriate graphics pool based on the global timer,
+ * sets the segment base address, and initializes the display list head and SP task
+ * for the new frame.
+ */
 void config_gfx_pool(void) {
     gGfxPool = &gGfxPools[gGlobalTimer & 1];
     set_segment_base_addr_x64(1, gGfxPool);
@@ -533,6 +647,13 @@ void display_and_vsync(void) {
     }
 }
 
+/**
+ * @brief Initializes the memory segment for ending sequences.
+ *
+ * This function clears the ending segment, writes back the data cache,
+ * copies the ending sequence data from ROM to RAM, and invalidates
+ * the instruction and data caches for the segment.
+ */
 void init_segment_ending_sequences(void) {
 #ifdef TARGET_N64
     bzero((void*) SEG_ENDING, SEG_ENDING_SIZE);
@@ -543,6 +664,13 @@ void init_segment_ending_sequences(void) {
 #endif
 }
 
+/**
+ * @brief Initializes the memory segment for racing.
+ *
+ * This function clears the racing segment, writes back the data cache,
+ * copies the racing data from ROM to RAM, and invalidates
+ * the instruction and data caches for the segment.
+ */
 void init_segment_racing(void) {
 #ifdef TARGET_N64
     bzero((void*) SEG_RACING, SEG_RACING_SIZE);
@@ -553,6 +681,16 @@ void init_segment_racing(void) {
 #endif
 }
 
+/**
+ * @brief Copies data from ROM to RAM using DMA.
+ *
+ * This function performs a DMA transfer to copy data from a specified ROM address
+ * to a destination address in RAM. It handles the transfer in chunks of 0x100 bytes.
+ *
+ * @param dest The destination address in RAM.
+ * @param romAddr The source address in ROM.
+ * @param size The number of bytes to copy.
+ */
 void dma_copy(u8* dest, u8* romAddr, size_t size) {
 
     osInvalDCache(dest, size);
@@ -621,8 +759,9 @@ void setup_game_memory(void) {
 }
 
 /**
- * @brief
+ * @brief Initializes the game by clearing the framebuffer and setting the next gamestate.
  *
+ * This function sets the next gamestate to the start menu and clears the framebuffer to black.
  */
 void game_init_clear_framebuffer(void) {
     gGamestateNext = 0; // = START_MENU_FROM_QUIT?
@@ -698,6 +837,13 @@ void calculate_updaterate(void) {
     gTickVisuals = 1;    // Perform visual update
 }
 
+/**
+ * @brief Displays debug information on the screen.
+ *
+ * This function handles the display of debug information, including the camera's
+ * orientation and resource meters. It can be toggled on and off with controller
+ * input combinations.
+ */
 void display_debug_info(void) {
     u16 rotY;
     if (!gEnableDebugMode) {
@@ -743,6 +889,13 @@ void display_debug_info(void) {
     }
 }
 
+/**
+ * @brief Processes a single game tick.
+ *
+ * This function handles the core game logic for a single frame, including updating the course timer,
+ * evaluating collisions, handling player input, and updating camera and actor states. It is skipped
+ * if the editor is paused.
+ */
 void process_game_tick(void) {
 
     if (gIsEditorPaused == false) {
@@ -800,6 +953,13 @@ void process_game_tick(void) {
     func_8028FCBC();
 }
 
+/**
+ * @brief Main loop for the race logic.
+ *
+ * This function handles the entire race sequence, including clearing matrix pools,
+ * handling paused and quit-to-menu states, processing game ticks, rendering screens
+ * for different player modes, and performing end-of-frame cleanup.
+ */
 void race_logic_loop(void) {
     ClearMatrixPools();
     ClearObjectsMatrixPool();
@@ -976,6 +1136,12 @@ void game_state_handler(void) {
     FrameInterpolation_StopRecord();
 }
 
+/**
+ * @brief Interrupts the currently running graphics SP task.
+ *
+ * This function checks if the active SP task is a graphics task. If it is,
+ * the task's state is set to interrupted, and the task is yielded.
+ */
 void interrupt_gfx_sptask(void) {
     if (gActiveSPTask->task.t.type == M_GFXTASK) {
         gActiveSPTask->state = SPTASK_STATE_INTERRUPTED;
@@ -983,6 +1149,13 @@ void interrupt_gfx_sptask(void) {
     }
 }
 
+/**
+ * @brief Receives new SP tasks from the SP task message queue.
+ *
+ * This function checks the SP task message queue for new tasks and assigns them
+ * to the next audio or display task slots as appropriate. It also promotes the
+ * next tasks to current tasks if the current slots are empty.
+ */
 void receive_new_tasks(void) {
     UNUSED s32 pad;
     struct SPTask* spTask;
@@ -1009,6 +1182,17 @@ void receive_new_tasks(void) {
     }
 }
 
+/**
+ * @brief Sets a V-blank handler.
+ *
+ * This function configures a V-blank handler by associating it with a message queue
+ * and a message. The handler is assigned to one of two global V-blank handler slots.
+ *
+ * @param index The index of the V-blank handler to set (1 or 2).
+ * @param handler A pointer to the VblankHandler structure to configure.
+ * @param queue A pointer to the message queue to be used by the handler.
+ * @param msg A pointer to the message to be sent by the handler.
+ */
 void set_vblank_handler(s32 index, struct VblankHandler* handler, OSMesgQueue* queue, OSMesg* msg) {
     handler->queue = queue;
     handler->msg = *msg;
@@ -1022,6 +1206,12 @@ void set_vblank_handler(s32 index, struct VblankHandler* handler, OSMesgQueue* q
     }
 }
 
+/**
+ * @brief Starts a graphics SP task if conditions are met.
+ *
+ * This function checks if there is no active SP task and if there is a pending,
+ * unstarted display task. If both conditions are true, it starts the display task.
+ */
 void start_gfx_sptask(void) {
     if (gActiveSPTask == NULL && sCurrentDisplaySPTask != NULL &&
         sCurrentDisplaySPTask->state == SPTASK_STATE_NOT_STARTED) {
@@ -1030,6 +1220,13 @@ void start_gfx_sptask(void) {
     }
 }
 
+/**
+ * @brief Handles V-blank interrupts.
+ *
+ * This function is called on every V-blank. It increments the V-blank timer and counter,
+ * receives new tasks, and manages the execution of audio and graphics tasks. It prioritizes
+ * audio tasks and will interrupt graphics tasks if necessary.
+ */
 void handle_vblank(void) {
     gVBlankTimer += V_BlANK_TIMER_ITER;
     sNumVBlanks++;
@@ -1071,6 +1268,13 @@ void handle_vblank(void) {
     }
 }
 
+/**
+ * @brief Handles the completion of a DP (Display Processor) task.
+ *
+ * This function is called when a graphics task is fully completed by the DP.
+ * It sends a message to the task's message queue if one exists, logs the completion time,
+ * and marks the display task as finished.
+ */
 void handle_dp_complete(void) {
     // Gfx SP task is completely done.
     if (sCurrentDisplaySPTask->msgqueue != NULL) {
@@ -1081,6 +1285,12 @@ void handle_dp_complete(void) {
     sCurrentDisplaySPTask = NULL;
 }
 
+/**
+ * @brief Handles the completion of an SP (Signal Processor) task.
+ *
+ * This function is called when an SP task completes. It manages the state of the active task,
+ * handles task interruptions, and kicks off the next appropriate task (audio or graphics).
+ */
 void handle_sp_complete(void) {
     struct SPTask* curSPTask = gActiveSPTask;
 
@@ -1125,6 +1335,15 @@ void handle_sp_complete(void) {
     };
 }
 
+/**
+ * @brief Main video thread.
+ *
+ * This thread initializes the framebuffers, message queues, and game memory.
+ * It then starts the audio and game loop threads and enters an infinite loop
+ * to handle V-blank, SP, and DP interrupts.
+ *
+ * @param arg0 Unused.
+ */
 void thread3_video(UNUSED void* arg0) {
     s32 i;
     u64* framebuffer1;
@@ -1194,9 +1413,11 @@ void func_80002658(void) {
 }
 
 /**
- * Sets courseId to NULL if
+ * @brief Updates the game state and performs necessary setup for the new state.
  *
- *
+ * This function is called when the gamestate changes. It performs actions such as
+ * loading memory segments, setting up races, and initializing ceremony sequences
+ * based on the new gamestate.
  */
 void update_gamestate(void) {
     switch (gGamestate) {
@@ -1238,6 +1459,13 @@ void update_gamestate(void) {
     }
 }
 
+/**
+ * @brief Main game loop thread.
+ *
+ * This thread performs the initial setup for the game, including memory,
+ * message queues, and controllers. It also initializes rendering and
+ * reads controller input for the first time.
+ */
 void thread5_game_loop(void) {
     setup_game_memory();
     osCreateMesgQueue(&gGfxVblankQueue, gGfxMesgBuf, 1);
@@ -1263,6 +1491,13 @@ void thread5_game_loop(void) {
     func_800C5CB8();
 }
 
+/**
+ * @brief A single iteration of the game loop.
+ *
+ * This function represents one frame of the game. It calculates delta time,
+ * updates the gamestate if necessary, reads controller input, handles game logic
+ * via the game state handler, and manages the display list and vsync.
+ */
 void thread5_iteration(void) {
     func_800CB2C4();
     calculate_delta_time();
@@ -1294,7 +1529,13 @@ void thread5_iteration(void) {
 }
 
 /**
- * Sound processing thread. Runs at 50 or 60 FPS according to osTvType.
+ * @brief Sound processing thread.
+ *
+ * This thread runs at a fixed rate (50 or 60 FPS depending on TV type) and is responsible
+ * for generating and dispatching audio tasks. It initializes the audio system, sets up a
+ * V-blank handler for timing, and enters an infinite loop to process audio frames.
+ *
+ * @param arg Unused.
  */
 void thread4_audio(UNUSED void* arg) {
     UNUSED u32 unused[3];

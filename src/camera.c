@@ -56,6 +56,19 @@ f32 D_80164AA0[4];
 extern f32 D_80164498[];
 extern s16 D_80164678[];
 
+/**
+ * @brief Initializes a camera with default settings.
+ *
+ * This function sets up a camera's initial position, orientation, and various
+ * parameters based on the current game mode, screen mode, and player settings.
+ *
+ * @param posX The initial X position of the camera.
+ * @param posY The initial Y position of the camera.
+ * @param posZ The initial Z position of the camera.
+ * @param rot Unused rotation parameter.
+ * @param arg4 A parameter that controls camera setup.
+ * @param cameraId The ID of the camera to initialize.
+ */
 void camera_init(f32 posX, f32 posY, f32 posZ, UNUSED s16 rot, u32 arg4, s32 cameraId) {
     Player* player = gPlayerOne;
     Camera* camera = &cameras[cameraId];
@@ -195,7 +208,18 @@ void camera_init(f32 posX, f32 posY, f32 posZ, UNUSED s16 rot, u32 arg4, s32 cam
     func_802B7F7C(camera->pos, camera->lookAt, camera->rot);
 }
 
-// Many arrays are hard-coded to 4. Skip those.
+/**
+ * @brief Initializes the free camera.
+ *
+ * This function sets up the free camera with an initial position and default parameters.
+ *
+ * @param posX The initial X position of the camera.
+ * @param posY The initial Y position of the camera.
+ * @param posZ The initial Z position of the camera.
+ * @param rot Unused rotation parameter.
+ * @param arg4 A parameter that controls camera setup.
+ * @param cameraId The ID of the camera to initialize.
+ */
 void freecam_init(f32 posX, f32 posY, f32 posZ, UNUSED s16 rot, u32 arg4, s32 cameraId) {
     Player* player = gPlayerOne;
     Camera* camera = &cameras[cameraId];
@@ -335,12 +359,26 @@ void freecam_init(f32 posX, f32 posY, f32 posZ, UNUSED s16 rot, u32 arg4, s32 ca
     func_802B7F7C(camera->pos, camera->lookAt, camera->rot);
 }
 
-// Thwomp related
+/**
+ * @brief Handles camera effects related to Thwomps.
+ *
+ * This function triggers a camera shake effect, likely when a Thwomp hits the ground.
+ *
+ * @param camera A pointer to the camera to apply the effect to.
+ */
 void func_8001CA10(Camera* camera) {
     camera->unk_94.unk_8 = 0;
     camera->unk_94.unk_0 = 6.0f;
 }
 
+/**
+ * @brief Applies a camera effect to a player's camera.
+ *
+ * This function sets a camera effect parameter for the specified player's camera.
+ *
+ * @param player A pointer to the player whose camera will be affected.
+ * @param arg1 The value to set for the camera effect.
+ */
 void func_8001CA24(Player* player, f32 arg1) {
     Camera* camera = &cameras[player - gPlayerOne];
 
@@ -348,6 +386,21 @@ void func_8001CA24(Player* player, f32 arg1) {
     camera->unk_94.unk_0 = arg1;
 }
 
+/**
+ * @brief Calculates the camera position and look-at point for cinematic sequences.
+ *
+ * This function determines the camera's position and where it should be looking
+ * during cinematic moments, such as the end of a race.
+ *
+ * @param player Unused.
+ * @param camera A pointer to the camera being updated.
+ * @param arg2 Output vector for the calculated look-at point.
+ * @param arg3 Output for the calculated X position of the camera.
+ * @param arg4 Output for the calculated Y position of the camera.
+ * @param arg5 Output for the calculated Z position of the camera.
+ * @param huh Unused.
+ * @param wut Unused.
+ */
 void func_8001CA78(UNUSED Player* player, Camera* camera, Vec3f arg2, f32* arg3, f32* arg4, f32* arg5, UNUSED s32 huh,
                    UNUSED s32 wut) {
     Mat3 sp74;
@@ -401,6 +454,23 @@ void func_8001CA78(UNUSED Player* player, Camera* camera, Vec3f arg2, f32* arg3,
     *arg5 = ((temp_f16 - posZ) * 1) + posZ;
 }
 
+/**
+ * @brief Updates the camera's position and look-at point during gameplay.
+ *
+ * This function calculates the new camera position and look-at point based on the player's
+ * state, including speed, effects, and environmental interactions. It also handles
+ * camera shake and zoom effects.
+ *
+ * @param player A pointer to the player being followed.
+ * @param camera A pointer to the camera being updated.
+ * @param arg2 Output vector for the calculated look-at point.
+ * @param arg3 Output for the calculated X position of the camera.
+ * @param arg4 Output for the calculated Y position of the camera.
+ * @param arg5 Output for the calculated Z position of the camera.
+ * @param arg6 Unused.
+ * @param arg7 The player's rotation.
+ * @param index The player's index.
+ */
 void func_8001CCEC(Player* player, Camera* camera, Vec3f arg2, f32* arg3, f32* arg4, f32* arg5, UNUSED s32* arg6,
                    s16 arg7, s16 index) {
     Mat3 sp9C;
@@ -544,6 +614,21 @@ void func_8001CCEC(Player* player, Camera* camera, Vec3f arg2, f32* arg3, f32* a
     }
 }
 
+/**
+ * @brief Updates the camera's position and look-at point when the player is in water.
+ *
+ * This function calculates the camera's position and look-at point specifically for
+ * situations where the player is interacting with water.
+ *
+ * @param player A pointer to the player being followed.
+ * @param camera A pointer to the camera being updated.
+ * @param arg2 Output vector for the calculated look-at point.
+ * @param arg3 Output for the calculated X position of the camera.
+ * @param arg4 Output for the calculated Y position of the camera.
+ * @param arg5 Output for the calculated Z position of the camera.
+ * @param arg6 The player's rotation.
+ * @param arg7 The player's index.
+ */
 void func_8001D53C(Player* player, Camera* camera, Vec3f arg2, f32* arg3, f32* arg4, f32* arg5, s16 arg6, s16 arg7) {
     Mat3 sp74;
     Vec3f sp68;
@@ -594,6 +679,20 @@ void func_8001D53C(Player* player, Camera* camera, Vec3f arg2, f32* arg3, f32* a
     D_80164AA0[arg7] = 0.0f;
 }
 
+/**
+ * @brief Updates the camera's position for a specific view.
+ *
+ * This function calculates a new camera position and look-at point based on the player's
+ * position and rotation, likely for a specific camera mode or view.
+ *
+ * @param player A pointer to the player being followed.
+ * @param camera A pointer to the camera being updated.
+ * @param arg2 Output vector for the calculated look-at point.
+ * @param arg3 Output for the calculated X position of the camera.
+ * @param arg4 Output for the calculated Y position of the camera.
+ * @param arg5 Output for the calculated Z position of the camera.
+ * @param arg6 The player's rotation.
+ */
 void func_8001D794(Player* player, Camera* camera, Vec3f arg2, f32* arg3, f32* arg4, f32* arg5, s16 arg6) {
     Mat3 sp6C;
     Vec3f sp60;
@@ -635,6 +734,22 @@ void func_8001D794(Player* player, Camera* camera, Vec3f arg2, f32* arg3, f32* a
     *arg5 = camera->pos[2] + ((test3 - camera->pos[2]) * 1);
 }
 
+/**
+ * @brief Updates the camera for battle mode.
+ *
+ * This function calculates the camera's position and look-at point specifically for battle mode,
+ * taking into account player effects and actions.
+ *
+ * @param player A pointer to the player being followed.
+ * @param camera A pointer to the camera being updated.
+ * @param arg2 Output vector for the calculated look-at point.
+ * @param arg3 Output for the calculated X position of the camera.
+ * @param arg4 Output for the calculated Y position of the camera.
+ * @param arg5 Output for the calculated Z position of the camera.
+ * @param arg6 Unused.
+ * @param arg7 The player's rotation.
+ * @param index The player's index.
+ */
 void func_8001D944(Player* player, Camera* camera, Vec3f arg2, f32* arg3, f32* arg4, f32* arg5, UNUSED s32* arg6,
                    s16 arg7, s16 index) {
     Mat3 sp9C;
@@ -764,6 +879,16 @@ void func_8001D944(Player* player, Camera* camera, Vec3f arg2, f32* arg3, f32* a
     }
 }
 
+/**
+ * @brief Handles camera transitions at the start of a race.
+ *
+ * This function manages the camera's movement and orientation during the
+ * initial cinematic transition at the beginning of a race.
+ *
+ * @param camera A pointer to the camera being updated.
+ * @param player A pointer to the player being followed.
+ * @param arg2 The player's index.
+ */
 void func_8001E0C4(Camera* camera, Player* player, s8 arg2) {
     UNUSED s32 pad[6];
     f32 temp_f12;
@@ -824,7 +949,16 @@ void func_8001E0C4(Camera* camera, Player* player, s8 arg2) {
     camera->rot[2] = 0;
 }
 
-// This function has a few stack variables.
+/**
+ * @brief Main camera update function during gameplay.
+ *
+ * This function is the primary handler for updating the camera during a race.
+ * It adjusts the camera's angle and position based on player actions like drifting.
+ *
+ * @param camera A pointer to the camera being updated.
+ * @param player A pointer to the player being followed.
+ * @param arg2 The player's index.
+ */
 void func_8001E45C(Camera* camera, Player* player, s8 arg2) {
     UNUSED s32 pad[6];
     f32 temp_f12;
@@ -916,6 +1050,16 @@ void func_8001E45C(Camera* camera, Player* player, s8 arg2) {
     camera->rot[2] = 0;
 }
 
+/**
+ * @brief Updates the camera when the player is in water.
+ *
+ * This function specifically handles camera updates when the player is interacting
+ * with water, adjusting the camera's position and orientation accordingly.
+ *
+ * @param camera A pointer to the camera being updated.
+ * @param player A pointer to the player being followed.
+ * @param arg2 The player's index.
+ */
 void func_8001E8E8(Camera* camera, Player* player, s8 arg2) {
     UNUSED f32 pad[6];
     f32 temp_f12;
@@ -947,6 +1091,16 @@ void func_8001E8E8(Camera* camera, Player* player, s8 arg2) {
     camera->rot[2] = 0;
 }
 
+/**
+ * @brief Updates the camera for battle mode gameplay.
+ *
+ * This function handles the camera logic specifically for battle mode, adjusting
+ * the view based on player actions and effects.
+ *
+ * @param camera A pointer to the camera being updated.
+ * @param player A pointer to the player being followed.
+ * @param arg2 The player's index.
+ */
 void func_8001EA0C(Camera* camera, Player* player, s8 arg2) {
     UNUSED s32 pad[6];
     f32 temp_f12;
@@ -1039,6 +1193,16 @@ void func_8001EA0C(Camera* camera, Player* player, s8 arg2) {
     camera->rot[2] = 0;
 }
 
+/**
+ * @brief Main camera controller function.
+ *
+ * This function acts as a dispatcher, selecting the appropriate camera update logic
+ * based on the current game mode (Grand Prix, Battle, Time Trials, etc.) and player state.
+ *
+ * @param player A pointer to the player being followed.
+ * @param camera A pointer to the camera being updated.
+ * @param index The player's index.
+ */
 void func_8001EE98(Player* player, Camera* camera, s8 index) {
     s32 cameraIndex = camera->cameraId;
 
@@ -1131,6 +1295,15 @@ void func_8001EE98(Player* player, Camera* camera, s8 index) {
     }
 }
 
+/**
+ * @brief Adjusts the camera zoom based on player effects.
+ *
+ * This function modifies the camera's field of view (zoom) based on the player's
+ * current status effects, such as using a boost or holding a banana.
+ *
+ * @param player A pointer to the player.
+ * @param arg1 A pointer to the camera's zoom value to be modified.
+ */
 void func_8001F394(Player* player, f32* arg1) {
     f32 var_f0;
     UNUSED s32 pad;
@@ -1260,6 +1433,14 @@ void func_8001F394(Player* player, f32* arg1) {
     camera->unk_B4 = var_f0;
 }
 
+/**
+ * @brief Transitions the camera at the start of a Grand Prix race.
+ *
+ * This function handles the camera's transition from a cinematic view to the player's
+ * perspective at the beginning of a Grand Prix race.
+ *
+ * @param cameraId The ID of the camera to transition.
+ */
 void func_8001F87C(s32 cameraId) {
     s32 playerIndex;
     // Why?

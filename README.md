@@ -1,6 +1,8 @@
 ![Spaghetti Kart](docs/spaghettigithublight.png#gh-light-mode-only)
 ![Spaghetti Kart](docs/spaghettigithubnight.png#gh-dark-mode-only)
 
+SpaghettiKart is a decompilation project for Mario Kart 64 that aims to provide a native PC port with new features and enhancements. This project is a fork of the [Ship of Harkinian](https://github.com/Kenix3/libultraship) project, and is built on top of the [libultraship](https://github.com/Kenix3/libultraship) library.
+
 ## Help Wanted!
 This project is looking for a C or C++ coder interested in making a couple scrollable menus that can have lots of items in it. As a method to display custom content does not exist. A tick/render system for custom menus already exists. So just someone willing to build out the menu.
 
@@ -69,18 +71,40 @@ If you're interested in creating and/or packing your own custom asset `.o2r` fil
 **Note that .otr archives are not supported in SpaghettiKart!**
 
 # Development
+
+This project is a C port of Mario Kart 64, built on the [libultraship](https://github.com/Kenix3/libultraship) library. The codebase is primarily written in C, with some C++ for the frontend and audio backend. The project uses CMake for building and Doxygen for documentation.
+
 ### Building
 
 If you want to manually compile SpaghettiKart, please consult the [building instructions](https://github.com/HarbourMasters/SpaghettiKart/blob/main/docs/BUILDING.md).
 
+### Codebase Overview
+
+The codebase is organized as follows:
+- `src`: Contains the main source code for the game, organized by category (e.g., `actors`, `audio`, `racing`).
+- `include`: Contains the header files for the game.
+- `assets`: Contains the game's assets, such as textures, models, and audio.
+- `mods`: Contains custom assets and mods.
+- `tools`: Contains tools for working with the game's assets and code.
+
 ### Playtesting
-If you want to playtest a continuous integration build, you can find them at the links below. Keep in mind that these are for playtesting only, and you will likely encounter bugs and possibly crashes. 
+If you want to playtest a continuous integration build, you can find them at the links below. Keep in mind that these are for playtesting only, and you will likely encounter bugs and possibly crashes.
 
 * [Windows](https://nightly.link/HarbourMasters/SpaghettiKart/workflows/main/main/spaghetti-windows.zip?status=completed)
 * [Linux](https://nightly.link/HarbourMasters/SpaghettiKart/workflows/main/main/spaghetti-linux-x64.zip?status=completed)
 * [macOS-arm64](https://nightly.link/HarbourMasters/SpaghettiKart/workflows/main/main/spaghetti-mac-arm64.zip?status=completed)
 * [macOS-intel](https://nightly.link/HarbourMasters/SpaghettiKart/workflows/main/main/spaghetti-mac-intel-x64.zip?status=completed)
 * [Switch](https://nightly.link/HarbourMasters/SpaghettiKart/workflows/main/main/Spaghettify-switch.zip?status=completed)
+
+## Contributing
+Contributions are welcome! If you'd like to contribute to the project, please follow these steps:
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Make your changes and commit them with a descriptive commit message.
+4. Push your changes to your fork.
+5. Open a pull request to the `main` branch of this repository.
+
+Please make sure to follow the existing code style and to test your changes thoroughly before submitting a pull request.
 
 Maintainers: [MegaMech](https://www.github.com/MegaMech), [Coco](https://www.github.com/coco875), [Kirito](https://github.com/KiritoDv)
 

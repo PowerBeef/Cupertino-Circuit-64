@@ -42,16 +42,18 @@
 #define BINARY 2
 
 /**
- * This structure is the heart of the DVDL.
- * only the first 4 attributes should be set by the user, the other 2 are used by the program.
+ * @brief A structure for watching variables in the Debug Variable Display List (DVDL).
+ *
+ * This structure holds the necessary information to display a variable's name,
+ * address, and value on the screen for debugging purposes.
  */
 typedef struct {
-    char* variableName;                 // name of the variable to be displayed
-    void* variablePointer;              // pointer to the variable so it can display it
-    u8 variableSize;                    // size of the variable to make up for templates from C++
-    u8 variableFlag;                    // flag to change how the variable is displayed
-    char buffer[CHARACTER_BUFFER_SIZE]; // when converting a variable to string this will be filled
-    char* characterBuffer;              // silly pointer so i don't need to do stuff
+    char* variableName;                 ///< The name of the variable to be displayed.
+    void* variablePointer;              ///< A pointer to the variable.
+    u8 variableSize;                    ///< The size of the variable in bytes.
+    u8 variableFlag;                    ///< Flags to control how the variable is displayed.
+    char buffer[CHARACTER_BUFFER_SIZE]; ///< A buffer to hold the string representation of the variable.
+    char* characterBuffer;              ///< A pointer to the character buffer.
 } variableWatchAttributes;
 
 /**

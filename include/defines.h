@@ -112,16 +112,19 @@
 #define FOUR_PLAYERS_SELECTED 4
 #define SELECTED_PLAYER_DEFINES_TOTAL 5
 
+/**
+ * @brief An enumeration of player IDs.
+ */
 enum PlayerId {
-    PLAYER_NONE = -1,
-    PLAYER_ONE = 0,
-    PLAYER_TWO = 1,
-    PLAYER_THREE = 2,
-    PLAYER_FOUR = 3,
-    PLAYER_FIVE = 4,
-    PLAYER_SIX = 5,
-    PLAYER_SEVEN = 6,
-    PLAYER_EIGHT = 7
+    PLAYER_NONE = -1, ///< No player.
+    PLAYER_ONE = 0,   ///< Player 1.
+    PLAYER_TWO = 1,   ///< Player 2.
+    PLAYER_THREE = 2, ///< Player 3.
+    PLAYER_FOUR = 3,  ///< Player 4.
+    PLAYER_FIVE = 4,  ///< Player 5.
+    PLAYER_SIX = 5,   ///< Player 6.
+    PLAYER_SEVEN = 6, ///< Player 7.
+    PLAYER_EIGHT = 7  ///< Player 8.
 };
 
 #define NUM_PLAYERS 8
@@ -255,25 +258,27 @@ enum { COURSE_ONE, COURSE_TWO, COURSE_THREE, COURSE_FOUR };
  * flashing between 2 colors, but also cause individual characters
  * to be cutoff on their right side
  */
+/**
+ * @brief An enumeration of text color options.
+ */
 enum COLOR_ID {
-    TEXT_BLUE,
-    TEXT_GREEN,
-    TEXT_RED,
-    TEXT_YELLOW,
-    TEXT_BLUE_GREEN_RED_CYCLE_1,
-    TEXT_BLUE_GREEN_RED_CYCLE_2
+    TEXT_BLUE,                   ///< Blue text.
+    TEXT_GREEN,                  ///< Green text.
+    TEXT_RED,                    ///< Red text.
+    TEXT_YELLOW,                 ///< Yellow text.
+    TEXT_BLUE_GREEN_RED_CYCLE_1, ///< Cycling colors (blue, green, red).
+    TEXT_BLUE_GREEN_RED_CYCLE_2  ///< Cycling colors (offset from cycle 1).
 };
 
 /**
- * @brief Sound mode options
- * Option 2 appears to be unused, as such its probably not
- * a valid option
+ * @brief An enumeration of sound mode options.
  */
-#define SOUND_STEREO 0
-#define SOUND_HEADPHONES 1
-#define SOUND_UNUSED 2
-#define SOUND_MONO 3
-#define NUM_SOUND_MODES 4
+enum SOUND_MODE {
+    SOUND_STEREO,     ///< Stereo sound.
+    SOUND_HEADPHONES, ///< Headphone-optimized sound.
+    SOUND_UNUSED,     ///< Unused sound mode.
+    SOUND_MONO        ///< Monaural sound.
+};
 
 /**
  * @brief Title screen demo options
@@ -290,43 +295,55 @@ enum COLOR_ID {
 /**
  * @brief Item IDs
  */
+/**
+ * @brief An enumeration of all possible items in the game.
+ */
 enum ITEMS {
-    /* 0x00 */ ITEM_NONE = 0,
-    /* 0x01 */ ITEM_BANANA,
-    /* 0x02 */ ITEM_BANANA_BUNCH,
-    /* 0x03 */ ITEM_GREEN_SHELL,
-    /* 0x04 */ ITEM_TRIPLE_GREEN_SHELL,
-    /* 0x05 */ ITEM_RED_SHELL,
-    /* 0x06 */ ITEM_TRIPLE_RED_SHELL,
-    /* 0x07 */ ITEM_BLUE_SPINY_SHELL,
-    /* 0x08 */ ITEM_THUNDERBOLT,
-    /* 0x09 */ ITEM_FAKE_ITEM_BOX,
-    /* 0x0A */ ITEM_STAR,
-    /* 0x0B */ ITEM_BOO,
-    /* 0x0C */ ITEM_MUSHROOM,
-    /* 0x0D */ ITEM_DOUBLE_MUSHROOM,
-    /* 0x0E */ ITEM_TRIPLE_MUSHROOM,
-    /* 0x0F */ ITEM_SUPER_MUSHROOM,
-    /* 0x0G */ ITEM_MAX,
+    /* 0x00 */ ITEM_NONE = 0,             ///< No item.
+    /* 0x01 */ ITEM_BANANA,               ///< A single banana.
+    /* 0x02 */ ITEM_BANANA_BUNCH,         ///< A bunch of bananas.
+    /* 0x03 */ ITEM_GREEN_SHELL,          ///< A single green shell.
+    /* 0x04 */ ITEM_TRIPLE_GREEN_SHELL,   ///< Three green shells.
+    /* 0x05 */ ITEM_RED_SHELL,            ///< A single red shell.
+    /* 0x06 */ ITEM_TRIPLE_RED_SHELL,     ///< Three red shells.
+    /* 0x07 */ ITEM_BLUE_SPINY_SHELL,     ///< A blue spiny shell.
+    /* 0x08 */ ITEM_THUNDERBOLT,          ///< A thunderbolt.
+    /* 0x09 */ ITEM_FAKE_ITEM_BOX,        ///< A fake item box.
+    /* 0x0A */ ITEM_STAR,                 ///< A star.
+    /* 0x0B */ ITEM_BOO,                  ///< A boo.
+    /* 0x0C */ ITEM_MUSHROOM,             ///< A single mushroom.
+    /* 0x0D */ ITEM_DOUBLE_MUSHROOM,      ///< Two mushrooms.
+    /* 0x0E */ ITEM_TRIPLE_MUSHROOM,      ///< Three mushrooms.
+    /* 0x0F */ ITEM_SUPER_MUSHROOM,       ///< A super mushroom.
+    /* 0x10 */ ITEM_MAX                   ///< The maximum number of items.
 };
 
+/**
+ * @brief An enumeration of CPU player behaviors.
+ */
 enum CPU_BEHAVIOURS {
-    BEHAVIOUR_NONE = 0,
-    BEHAVIOUR_1,
-    BEHAVIOUR_HOP,
-    BEHAVIOUR_DRIVE_CENTER,
-    BEHAVIOUR_DRIVE_LEFT,
-    BEHAVIOUR_DRIVE_OUTER,
-    BEHAVIOUR_NORMAL_SPEED,
-    BEHAVIOUR_FAST_SPEED,
-    BEHAVIOUR_SLOW_SPEED,
-    BEHAVIOUR_9,
-    BEHAVIOUR_10,
-    BEHAVIOUR_MAX_SPEED
+    BEHAVIOUR_NONE = 0,         ///< No specific behavior.
+    BEHAVIOUR_1,                ///< Unused behavior.
+    BEHAVIOUR_HOP,              ///< The CPU player will hop.
+    BEHAVIOUR_DRIVE_CENTER,     ///< The CPU player will drive in the center of the track.
+    BEHAVIOUR_DRIVE_LEFT,       ///< The CPU player will drive on the left side of the track.
+    BEHAVIOUR_DRIVE_OUTER,      ///< The CPU player will drive on the outer edge of the track.
+    BEHAVIOUR_NORMAL_SPEED,     ///< The CPU player will drive at a normal speed.
+    BEHAVIOUR_FAST_SPEED,       ///< The CPU player will drive at a fast speed.
+    BEHAVIOUR_SLOW_SPEED,       ///< The CPU player will drive at a slow speed.
+    BEHAVIOUR_9,                ///< Unused behavior.
+    BEHAVIOUR_10,               ///< Unused behavior.
+    BEHAVIOUR_MAX_SPEED         ///< The CPU player will drive at maximum speed.
 };
 
+/**
+ * @brief An enumeration of cardinal directions.
+ */
 enum DIRECTION { NORTH, EAST, SOUTH, WEST };
 
+/**
+ * @brief An enumeration of player rankings.
+ */
 enum PLACE { FIRST_PLACE, SECOND_PLACE, THIRD_PLACE, FOURTH_PLACE };
 
 /**
