@@ -186,7 +186,14 @@ s16* gListCPUforBowser[] = {
 s16** cpu_forTwoPlayer[] = { gListCPUforMario, gListCPUforLuigi, gListCPUforYoshi, gListCPUforToad,
                              gListCPUforDk,    gListCPUforWario, gListCPUforPeach, gListCPUforBowser };
 
-// func_80027D00
+/**
+ * @brief Retrieves the index of a player.
+ *
+ * This function returns the numerical index (0-7) of a given player structure.
+ *
+ * @param player A pointer to the player structure.
+ * @return The index of the player.
+ */
 s32 get_player_index_for_player(Player* player) {
     s32 index;
 
@@ -217,6 +224,15 @@ s32 get_player_index_for_player(Player* player) {
     return index;
 }
 
+/**
+ * @brief Plays a sound effect for a player's character.
+ *
+ * This function triggers a character-specific sound effect for a player,
+ * depending on various game state conditions.
+ *
+ * @param player A pointer to the player structure.
+ * @param playerId The ID of the player.
+ */
 void func_80027DA8(Player* player, s8 playerId) {
     if (D_8015F890 != 1) {
         if ((player->type & 0x10) != 0x10) {
@@ -239,6 +255,15 @@ void func_80027DA8(Player* player, s8 playerId) {
     }
 }
 
+/**
+ * @brief Handles environmental audio effects for a player.
+ *
+ * This function is responsible for playing environmental sounds based on the player's
+ * location and the current course.
+ *
+ * @param player A pointer to the player structure.
+ * @param playerId The ID of the player.
+ */
 void func_80027EDC(Player* player, s8 playerId) {
     UNUSED s32 pad;
     if (((player->type & PLAYER_HUMAN) == PLAYER_HUMAN) &&
@@ -498,6 +523,18 @@ void func_80027EDC(Player* player, s8 playerId) {
     }
 }
 
+/**
+ * @brief Checks for collision between a player and the camera for rubber banding.
+ *
+ * This function determines if a player is within a certain view cone of the camera,
+ * which is used to implement rubber banding for CPU players.
+ *
+ * @param player A pointer to the player structure.
+ * @param camera A pointer to the camera structure.
+ * @param arg2 A parameter affecting the collision check distance.
+ * @param arg3 A parameter affecting the collision check angle.
+ * @return Returns true if the player is within the camera's view, false otherwise.
+ */
 u16 check_player_camera_collision_rubberbanding(Player* player, Camera* camera, f32 arg2, f32 arg3) {
     UNUSED f32 pad[6];
     f32 sp64;
@@ -550,6 +587,18 @@ u16 check_player_camera_collision_rubberbanding(Player* player, Camera* camera, 
     return ret;
 }
 
+/**
+ * @brief Main logic for player control in Grand Prix mode.
+ *
+ * This function handles player actions and CPU behavior in Grand Prix races. It checks
+ * for collisions, manages player effects, and switches between player and CPU control
+ * based on visibility.
+ *
+ * @param player A pointer to the player structure.
+ * @param camera A pointer to the camera structure.
+ * @param playerId The ID of the player.
+ * @param screenId The ID of the screen.
+ */
 void func_80028864(Player* player, Camera* camera, s8 playerId, s8 screenId) {
     u16 sp1E;
 
@@ -613,6 +662,17 @@ void func_80028864(Player* player, Camera* camera, s8 playerId, s8 screenId) {
     }
 }
 
+/**
+ * @brief Logic for player control in Time Trials and Versus modes.
+ *
+ * This function manages player actions in Time Trials and Versus races, primarily
+ * handling effects and delegating to other functions for movement and rendering.
+ *
+ * @param player A pointer to the player structure.
+ * @param camera A pointer to the camera structure.
+ * @param playerId The ID of the player.
+ * @param screenId The ID of the screen.
+ */
 void func_80028C44(Player* player, Camera* camera, s8 playerId, s8 screenId) {
     if ((player->type & PLAYER_START_SEQUENCE) == 0) {
         player->effects &= ~0x1000;
@@ -631,6 +691,17 @@ void func_80028C44(Player* player, Camera* camera, s8 playerId, s8 screenId) {
     }
 }
 
+/**
+ * @brief Logic for player control in Battle mode.
+ *
+ * This function manages player actions in Battle mode, handling effects and player
+ * state transitions specific to this game mode.
+ *
+ * @param player A pointer to the player structure.
+ * @param camera A pointer to the camera structure.
+ * @param playerId The ID of the player.
+ * @param screenId The ID of the screen.
+ */
 void func_80028D3C(Player* player, Camera* camera, s8 playerId, s8 screenId) {
     if ((((player->type & PLAYER_START_SEQUENCE) == 0) && (gRaceState != RACE_FINISHED)) ||
         (player->unk_0CA & 2) != 0 || (player->unk_0CA & 8) != 0 || (player->effects & 0x4F010CC0) != 0) {
@@ -651,6 +722,17 @@ void func_80028D3C(Player* player, Camera* camera, s8 playerId, s8 screenId) {
     }
 }
 
+/**
+ * @brief Main player control dispatcher.
+ *
+ * This function acts as a dispatcher, calling the appropriate player control logic
+ * based on the current game state (e.g., racing, ending ceremony).
+ *
+ * @param player A pointer to the player structure.
+ * @param camera A pointer to the camera structure.
+ * @param playerId The ID of the player.
+ * @param screenId The ID of the screen.
+ */
 void func_80028E70(Player* player, Camera* camera, s8 playerId, s8 screenId) {
     if ((player->type & PLAYER_EXISTS) == PLAYER_EXISTS) {
         switch (gGamestate) {
@@ -680,9 +762,18 @@ void func_80028E70(Player* player, Camera* camera, s8 playerId, s8 screenId) {
     }
 }
 
+/**
+ * @brief Unused function.
+ */
 UNUSED void func_80028F5C(UNUSED s32 arg0, UNUSED s32 arg1, UNUSED s32 arg2, UNUSED s32 arg3) {
 }
 
+/**
+ * @brief Updates all players in single-player mode.
+ *
+ * This function calls the main player control dispatcher for all eight players
+ * in single-player screen mode.
+ */
 void func_80028F70(void) {
     // ClearEffectsMatrixPool();
     gMatrixEffectCount = 0;
@@ -696,6 +787,12 @@ void func_80028F70(void) {
     func_80028E70(gPlayerEight, camera1, 7, 0);
 }
 
+/**
+ * @brief Updates all players in two-player mode.
+ *
+ * This function calls the main player control dispatcher for all eight players
+ * in two-player split-screen mode.
+ */
 void func_80029060(void) {
     // ClearEffectsMatrixPool();
     gMatrixEffectCount = 0;
@@ -712,6 +809,12 @@ void func_80029060(void) {
 void func_80029150(void) {
 }
 
+/**
+ * @brief Updates players in three and four-player modes.
+ *
+ * This function calls the main player control dispatcher for the first four players
+ * in three or four-player split-screen mode.
+ */
 void func_80029158(void) {
     // ClearEffectsMatrixPool();
     gMatrixEffectCount = 0;
@@ -730,6 +833,15 @@ void func_800291F0(void) {
 void func_800291F8(void) {
 }
 
+/**
+ * @brief Selects the animation group for a player based on slope acceleration.
+ *
+ * This function determines which set of animations to use for a player's character
+ * based on the steepness of the slope they are on.
+ *
+ * @param player A pointer to the player structure.
+ * @param screenId The ID of the screen.
+ */
 void func_80029200(Player* player, s8 screenId) {
     if ((s32) player->slopeAccel < -0x71B) {
         player->animGroupSelector[screenId] = 0;
@@ -760,6 +872,17 @@ void func_80029200(Player* player, s8 screenId) {
     }
 }
 
+/**
+ * @brief Updates the player's animation state.
+ *
+ * This function calculates and updates the player's animation frame and group selectors
+ * based on their movement relative to the camera and their current effects.
+ *
+ * @param player A pointer to the player structure.
+ * @param camera A pointer to the camera structure.
+ * @param screenId The ID of the screen.
+ * @param playerId The ID of the player.
+ */
 void func_8002934C(Player* player, Camera* camera, s8 screenId, s8 playerId) {
     UNUSED s32 pad[2];
     f32 temp_f0;
@@ -901,6 +1024,18 @@ void func_8002934C(Player* player, Camera* camera, s8 screenId, s8 playerId) {
     }
 }
 
+/**
+ * @brief Updates the player's tyre positions and interactions with the terrain.
+ *
+ * This function calculates the new positions of the player's tyres based on their
+ * orientation and performs collision detection with the terrain. It also updates
+ * the player's slope acceleration and surface type based on the results.
+ *
+ * @param player A pointer to the player structure.
+ * @param arg1 Unused.
+ * @param arg2 The player's Y position.
+ * @param arg3 Unused.
+ */
 void func_80029B4C(Player* player, UNUSED f32 arg1, f32 arg2, UNUSED f32 arg3) {
     f32 a;
     f32 b;
@@ -1015,6 +1150,18 @@ void func_80029B4C(Player* player, UNUSED f32 arg1, f32 arg2, UNUSED f32 arg3) {
     }
 }
 
+/**
+ * @brief Alternative function for updating tyre positions and terrain interactions.
+ *
+ * This function provides an alternative method for calculating tyre positions
+ * and handling terrain collision, possibly used in different screen modes or
+ * for non-human players.
+ *
+ * @param player A pointer to the player structure.
+ * @param x The player's X position.
+ * @param y The player's Y position.
+ * @param z The player's Z position.
+ */
 void func_8002A194(Player* player, f32 x, f32 y, f32 z) {
   UNUSED s32 pad[2];
   f32 temp_f12;
@@ -1100,7 +1247,18 @@ void func_8002A194(Player* player, f32 x, f32 y, f32 z) {
   }
 }
 
-// Near identical to adjust_pos_orthogonally in memory.c
+/**
+ * @brief Adjusts a position orthogonally to a vector.
+ *
+ * This function is nearly identical to `adjust_pos_orthogonally` and is likely
+ * used for adjusting positions in response to collisions or other interactions.
+ *
+ * @param arg0 The vector to which the position should be orthogonal.
+ * @param arg1 A parameter controlling the adjustment.
+ * @param arg2 The position vector to be adjusted.
+ * @param arg3 A scaling factor for the adjustment.
+ * @param arg4 A threshold for the adjustment.
+ */
 void func_8002A5F4(Vec3f arg0, f32 arg1, Vec3f arg2, f32 arg3, f32 arg4) {
     f32 temp_f0;
     f32 temp_f2;
@@ -1134,6 +1292,15 @@ void func_8002A5F4(Vec3f arg0, f32 arg1, Vec3f arg2, f32 arg3, f32 arg4) {
     }
 }
 
+/**
+ * @brief Applies a boost effect to a player.
+ *
+ * This function activates a boost effect for the player, sets the boost timer,
+ * and plays the corresponding sound effects.
+ *
+ * @param player A pointer to the player structure.
+ * @param arg1 The ID of the player.
+ */
 void func_8002A704(Player* player, s8 arg1) {
     player->effects |= BOOST_EFFECT;
     player->soundEffects &= ~0x02000000;
@@ -1145,6 +1312,15 @@ void func_8002A704(Player* player, s8 arg1) {
     player->boostTimer = 0x0050;
 }
 
+/**
+ * @brief Handles the mini-turbo (hop) mechanic.
+ *
+ * This function manages the logic for performing a mini-turbo, including
+ * setting the effect flags and playing the associated sound effect.
+ *
+ * @param player A pointer to the player structure.
+ * @param arg1 The ID of the player.
+ */
 void func_8002A79C(Player* player, s8 arg1) {
     if (((player->effects & 0x100) != 0x100) && ((player->effects & DRIFTING_EFFECT) != DRIFTING_EFFECT) &&
         (player->driftState >= 2)) {
@@ -1170,6 +1346,15 @@ void func_8002A79C(Player* player, s8 arg1) {
     }
 }
 
+/**
+ * @brief Manages the drift state and sound effects.
+ *
+ * This function updates the player's drift state based on their turning angle
+ * and speed, and plays sound effects to indicate the availability of a mini-turbo.
+ *
+ * @param player A pointer to the player structure.
+ * @param arg1 The ID of the player.
+ */
 void func_8002A8A4(Player* player, s8 arg1) {
     if (((s16) player->unk_0C0 / 182) > 0) {
         if (((s32) player->unk_07C >> 0x10) < -9) {
@@ -1214,6 +1399,14 @@ void func_8002A8A4(Player* player, s8 arg1) {
     }
 }
 
+/**
+ * @brief Initiates a kart hop.
+ *
+ * This function sets the initial vertical velocity, acceleration, and jerk for a kart hop,
+ * and sets the appropriate effect flag.
+ *
+ * @param player A pointer to the player structure.
+ */
 void kart_hop(Player* player) {
     player->kartHopJerk = gKartHopJerkTable[player->characterId];
     player->kartHopAcceleration = 0.0f;
@@ -1225,22 +1418,13 @@ void kart_hop(Player* player) {
 }
 
 /**
-  * Function: func_8002AAC0
-
-  * Parameters:
-  *     Player *player - A pointer to a Player
-
-  * First kartHopJerk is subtracted from kartHopAcceleration
-  * Then kartHopAcceleration is added to kartHopVelocity.
-
-  * If kartHopVelocity is less than or equal to zero, all three
-  * values (kartHop{Jerk,Acceleration,Velocity}) are set to 0.0f,
-  * thereby ending the rising portion of the hop.
-
-  * kartHopVelocity is restricted to values in [-INF, 15.0f]
-
-  * kartHopAcceleration is restricted to values in [-9.0f, 9.0f]
-**/
+ * @brief Updates the vertical motion of a kart hop.
+ *
+ * This function updates the kart's vertical acceleration and velocity during a hop.
+ * It simulates the upward motion of the hop, ending when the vertical velocity becomes zero.
+ *
+ * @param player A pointer to the player structure.
+ */
 void func_8002AAC0(Player* player) {
     player->kartHopAcceleration -= player->kartHopJerk;
     if (player->kartHopAcceleration >= 9.0f) {
@@ -1263,6 +1447,14 @@ void func_8002AAC0(Player* player) {
     }
 }
 
+/**
+ * @brief Adjusts the player's gravity and related properties.
+ *
+ * This function modifies the player's gravity based on their current state,
+ * including their speed, slope, and active effects.
+ *
+ * @param player A pointer to the player structure.
+ */
 void func_8002AB70(Player* player) {
     UNUSED s32 pad[2];
     if (((player->effects & 8) != 8) && (player->kartPropulsionStrength > 0.0f)) {
@@ -1322,6 +1514,19 @@ UNUSED void func_8002AE28(void) {
 UNUSED void func_8002AE30(void) {
 }
 
+/**
+ * @brief Adjusts the player's turning angle based on speed and controller input.
+ *
+ * This function calculates the adjustment to the player's turning angle, taking into
+ * account their speed, controller input, and whether they are drifting.
+ *
+ * @param player A pointer to the player structure.
+ * @param arg1 The player's ID.
+ * @param arg2 Previous X position.
+ * @param arg3 Previous Z position.
+ * @param arg4 Current X position.
+ * @param arg5 Current Z position.
+ */
 void func_8002AE38(Player* player, s8 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
     UNUSED s32 pad[4];
     s16 temp_v0_3;
@@ -1381,6 +1586,13 @@ void func_8002AE38(Player* player, s8 arg1, f32 arg2, f32 arg3, f32 arg4, f32 ar
     }
 }
 
+/**
+ * @brief Handles the drifting mechanic based on player state.
+ *
+ * This function initiates or ends a drift based on the player's `unk_006` state field.
+ *
+ * @param player A pointer to the player structure.
+ */
 void func_8002B218(Player* player) {
     u16 someIndex;
     u16 sp38[10] = { 0x0003, 0x0016, 0x0026, 0x003c, 0x0050, 0x0069, 0x0090, 0x009d, 0x00a9, 0x00cc };
@@ -1401,6 +1613,16 @@ void func_8002B218(Player* player) {
     }
 }
 
+/**
+ * @brief Applies sound effects based on the player's state.
+ *
+ * This function checks the player's sound effect flags and calls the appropriate
+ * functions to play the corresponding sounds.
+ *
+ * @param player A pointer to the player structure.
+ * @param playerId The ID of the player.
+ * @param screenId Unused.
+ */
 void apply_sound_effect(Player* player, s8 playerId, UNUSED s8 screenId) {
     if ((player->soundEffects & 2) == 2) {
         apply_hit_by_item_sound_effect(player, playerId);
@@ -1458,6 +1680,16 @@ void apply_sound_effect(Player* player, s8 playerId, UNUSED s8 screenId) {
     }
 }
 
+/**
+ * @brief Clears sound effect flags based on the player's state.
+ *
+ * This function clears various sound effect flags based on the player's current
+ * effects and state, preventing sounds from playing when they shouldn't.
+ *
+ * @param player A pointer to the player structure.
+ * @param playerId Unused.
+ * @param screenId Unused.
+ */
 void func_8002B5C0(Player* player, UNUSED s8 playerId, UNUSED s8 screenId) {
     if (((player->unk_0CA & 8) != 0) || ((player->unk_0CA & 2) != 0)) {
         player->soundEffects &= 0xFE1D0478;
@@ -1512,6 +1744,16 @@ void func_8002B5C0(Player* player, UNUSED s8 playerId, UNUSED s8 screenId) {
     }
 }
 
+/**
+ * @brief Manages the overall sound state for a player.
+ *
+ * This function clears and applies sound effects for a player, and also
+ * handles any special sound events.
+ *
+ * @param player A pointer to the player structure.
+ * @param playerId The ID of the player.
+ * @param screenId The ID of the screen.
+ */
 void func_8002B830(Player* player, s8 playerId, s8 screenId) {
     if (player->soundEffects != 0) {
         func_8002B5C0(player, playerId, screenId);
@@ -1570,6 +1812,16 @@ UNUSED void func_8002B8A4(Player* player_one, Player* player_two) {
     // clang-format on
 }
 
+/**
+ * @brief Handles player collision response.
+ *
+ * This function is called when a player collides with another object or player.
+ * It adjusts the player's speed and plays a collision sound effect.
+ *
+ * @param player A pointer to the player structure.
+ * @param arg1 The ID of the player.
+ * @param arg2 Unused.
+ */
 void func_8002B9CC(Player* player, s8 arg1, UNUSED s32 arg2) {
     f32 temp_f0;
     f32 temp_f2;
@@ -1606,6 +1858,19 @@ void func_8002B9CC(Player* player, s8 arg1, UNUSED s32 arg2) {
     }
 }
 
+/**
+ * @brief Adjusts the player's rotation after a collision.
+ *
+ * This function modifies the player's rotation angle after a collision to
+ * create a bounce-off effect.
+ *
+ * @param player A pointer to the player structure.
+ * @param arg1 A pointer to the player's next X position.
+ * @param arg2 A pointer to the player's next Z position.
+ * @param arg3 Unused.
+ * @param arg4 Unused.
+ * @param arg5 Unused.
+ */
 void func_8002BB9C(Player* player, f32* arg1, f32* arg2, UNUSED s8 arg3, UNUSED s8 arg4, UNUSED Vec3f arg5) {
     Mat3 sp64;
     Vec3f sp58;
@@ -1667,6 +1932,14 @@ void func_8002BB9C(Player* player, f32* arg1, f32* arg2, UNUSED s8 arg3, UNUSED 
     }
 }
 
+/**
+ * @brief Adjusts the player's turning rate after a collision.
+ *
+ * This function modifies the player's turning rate based on the angle of collision,
+ * making it harder to turn for a short period.
+ *
+ * @param player A pointer to the player structure.
+ */
 void func_8002BD58(Player* player) {
     s32 sp2C[7] = { 0x002f0000, 0x00300000, 0x00310000, 0x00320000, 0x00320000, 0x00320000, 0x00320000 };
     s32 spC[8] = { 0x00280000, 0x002c0000, 0x00300000, 0x00320000, 0x00320000, 0x00320000, 0x00320000, 0x00320000 };
@@ -1698,6 +1971,15 @@ void func_8002BD58(Player* player) {
     }
 }
 
+/**
+ * @brief Handles the slipstreaming/drafting mechanic.
+ *
+ * This function detects if a player is slipstreaming behind another player and,
+ * if so, applies a speed boost.
+ *
+ * @param player A pointer to the player structure.
+ * @param arg1 The ID of the player.
+ */
 void func_8002BF4C(Player* player, s8 arg1) {
     UNUSED s32 pad[3];
     UNUSED s32 uselessAssignment;
@@ -1746,6 +2028,14 @@ void func_8002BF4C(Player* player, s8 arg1) {
     }
 }
 
+/**
+ * @brief Updates the duration of a player's drift.
+ *
+ * This function increments or decrements the drift duration timer based on whether
+ * the player is currently drifting.
+ *
+ * @param player A pointer to the player structure.
+ */
 void func_8002C11C(Player* player) {
     if ((player->effects & DRIFTING_EFFECT) == DRIFTING_EFFECT) {
         player->driftDuration += 1;
@@ -1760,6 +2050,15 @@ void func_8002C11C(Player* player) {
     }
 }
 
+/**
+ * @brief Updates the player's waypoint information for specific tracks.
+ *
+ * This function updates the player's nearest waypoint and path index, with
+ * special logic for certain tracks like Yoshi Valley and Rainbow Road.
+ *
+ * @param player A pointer to the player structure.
+ * @param playerId The ID of the player.
+ */
 void func_8002C17C(Player* player, s8 playerId) {
     if (IsYoshiValley()) {
         if ((player->collision.surfaceDistance[2] >= 600.0f) && (D_80165330[playerId] == 0)) {
@@ -1811,6 +2110,15 @@ void func_8002C17C(Player* player, s8 playerId) {
     }
 }
 
+/**
+ * @brief Updates the player's state based on environmental interactions.
+ *
+ * This function handles the player's interaction with water and out-of-bounds areas,
+ * setting flags and triggering effects as needed.
+ *
+ * @param player A pointer to the player structure.
+ * @param playerIndex The index of the player.
+ */
 void update_player_environment_and_hazard_state(Player* player, s8 playerIndex) {
     gPlayerWaterLevel[playerIndex] = get_water_level(player);
     if (player->pos[1] <= gPlayerWaterLevel[playerIndex]) { // Player is in water, at least partially
@@ -1871,6 +2179,16 @@ void update_player_environment_and_hazard_state(Player* player, s8 playerIndex) 
     func_8002C17C(player, playerIndex);
 }
 
+/**
+ * @brief Handles the logic for when a player is hit by a spinning item.
+ *
+ * This function is called when a player is hit by an item that causes them to spin out.
+ * It manages the player's state, speed, and effects during the spin.
+ *
+ * @param player A pointer to the player structure.
+ * @param arg1 The ID of the player.
+ * @param arg2 The ID of the screen.
+ */
 void func_8002C7E4(Player* player, s8 arg1, s8 arg2) {
     if ((player->unk_046 & 1) != 1) {
         if ((player->effects & 0x8000) == 0x8000) {
@@ -1910,6 +2228,16 @@ void func_8002C7E4(Player* player, s8 arg1, s8 arg2) {
     }
 }
 
+/**
+ * @brief Handles the response to a wall collision.
+ *
+ * This function is called when a player collides with a wall. It triggers a bounce-off
+ * effect, plays a sound, and adjusts the player's speed.
+ *
+ * @param player A pointer to the player structure.
+ * @param playerId The ID of the player.
+ * @param arg2 The player's velocity.
+ */
 void func_8002C954(Player* player, s8 playerId, Vec3f arg2) {
     f32 temp_f0;
     f32 var_f14;
@@ -1971,6 +2299,16 @@ void func_8002C954(Player* player, s8 playerId, Vec3f arg2) {
     }
 }
 
+/**
+ * @brief Applies various effects to the player.
+ *
+ * This function is a dispatcher that calls the appropriate effect-handling
+ * functions based on the player's current effect flags.
+ *
+ * @param player A pointer to the player structure.
+ * @param arg1 The ID of the player.
+ * @param arg2 The ID of the screen.
+ */
 void apply_effect(Player* player, s8 arg1, s8 arg2) {
     if (((player->unk_0CA & 2) == 2) || ((player->unk_0CA & 8) == 8)) {
         func_80090970(player, arg1, arg2);
@@ -2043,6 +2381,15 @@ void apply_effect(Player* player, s8 arg1, s8 arg2) {
     }
 }
 
+/**
+ * @brief Controls CPU player movement during cinematic sequences.
+ *
+ * This function handles the movement of CPU players when they are in a
+ * cinematic or staging state, guiding them along a predefined path.
+ *
+ * @param player A pointer to the player structure.
+ * @param arg1 The ID of the player.
+ */
 void func_8002D028(Player* player, s8 arg1) {
     Vec3f sp4C;
     f32 temp_f18;
@@ -2095,6 +2442,17 @@ void func_8002D028(Player* player, s8 arg1) {
     }
 }
 
+/**
+ * @brief Main update function for player physics and movement.
+ *
+ * This function is the core of the player physics engine. It handles acceleration,
+ * deceleration, gravity, collisions, and updates the player's position and velocity.
+ *
+ * @param player A pointer to the player structure.
+ * @param camera Unused.
+ * @param screenId The ID of the screen.
+ * @param playerId The ID of the player.
+ */
 void func_8002D268(Player* player, UNUSED Camera* camera, s8 screenId, s8 playerId) {
     Vec3f sp184 = { 0.0, 0.0, 1.0 };
     Vec3f sp178 = { 0.0, 0.0, 0.0 };
@@ -2416,6 +2774,14 @@ void func_8002D268(Player* player, UNUSED Camera* camera, s8 screenId, s8 player
     update_player_environment_and_hazard_state(player, playerId);
 }
 
+/**
+ * @brief Sets the player's height to the surface of the track.
+ *
+ * This function adjusts the player's vertical position to place them on the
+ * surface of the track, typically used after a reset.
+ *
+ * @param player A pointer to the player structure.
+ */
 void set_player_height(Player* player) {
     s32 player_index;
 
@@ -2678,6 +3044,17 @@ void func_8002E594(Player* player, UNUSED Camera* camera, s8 screenId, s8 player
     update_player_environment_and_hazard_state(player, playerId);
 }
 
+/**
+ * @brief Controls the movement of CPU players.
+ *
+ * This function handles the AI for CPU-controlled players, guiding them along
+ * the track and adjusting their speed and turning.
+ *
+ * @param player A pointer to the player structure.
+ * @param camera Unused.
+ * @param screenId The ID of the screen.
+ * @param playerId The ID of the player.
+ */
 void control_cpu_movement(Player* player, UNUSED Camera* camera, s8 screenId, s8 playerId) {
     Vec3f spF4 = { 0.0f, 0.0f, 1.0f };
     UNUSED Vec3f spE8 = { 0.0f, 0.0f, 0.0f };
@@ -2754,6 +3131,17 @@ void control_cpu_movement(Player* player, UNUSED Camera* camera, s8 screenId, s8
     }
 }
 
+/**
+ * @brief Handles player physics during the pre-race staging period.
+ *
+ * This function is responsible for the player's movement and physics while they
+ * are on the starting line before the race begins.
+ *
+ * @param player A pointer to the player structure.
+ * @param camera Unused.
+ * @param screenId Unused.
+ * @param playerId The ID of the player.
+ */
 void func_8002F730(Player* player, UNUSED Camera* camera, UNUSED s8 screenId, s8 playerId) {
     Vec3f spF4 = { 0.0f, 0.0f, 1.0f };
     Vec3f spE8 = { 0.0f, 0.0f, 0.0f };
@@ -2862,6 +3250,15 @@ void func_8002F730(Player* player, UNUSED Camera* camera, UNUSED s8 screenId, s8
     }
 }
 
+/**
+ * @brief Calculates the friction and resistance acting on the player's kart.
+ *
+ * This function determines the amount of friction and other resistive forces
+ * acting on the player's kart based on the surface type and other factors.
+ *
+ * @param player A pointer to the player structure.
+ * @param arg1 The ID of the player.
+ */
 void func_8002FCA8(Player* player, s8 arg1) {
     f32 var_f0;
     f32 var_f12;
@@ -2906,6 +3303,15 @@ void func_8002FCA8(Player* player, s8 arg1) {
     player->unk_208 = player->unk_088 - var_f12;
 }
 
+/**
+ * @brief Calculates the player's propulsion strength.
+ *
+ * This function determines the propulsion strength of the player's kart based on
+ * their current speed, slope, and surface type.
+ *
+ * @param player A pointer to the player structure.
+ * @param arg1 The base propulsion strength.
+ */
 void func_8002FE84(Player* player, f32 arg1) {
     f32 temp_f0_3;
     f32 var_f0;
